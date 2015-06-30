@@ -4,7 +4,13 @@
 To run the server do this:
 
 ```bash
-go run server-pike.go
+go run server-zach/server.go
+```
+
+or:
+
+```bash
+go run server-nick/server.go
 ```
 
 Once the server is running you can churn out fractals like there is no
