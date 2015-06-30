@@ -12,41 +12,47 @@ import (
 
 func main() {
 	http.HandleFunc("/mandelbrot", func(wr http.ResponseWriter, r *http.Request) {
-		w, err := strconv.Atoi(r.FormValue("w"))
+		width, err := strconv.Atoi(r.FormValue("width"))
 		if err != nil {
-			fmt.Fprint(wr, "w must be 32-bit integer")
+			fmt.Fprint(wr, "width must be 32-bit integer")
 			return
 		}
 
-		h, err := strconv.Atoi(r.FormValue("h"))
+		height, err := strconv.Atoi(r.FormValue("height"))
 		if err != nil {
-			fmt.Fprint(wr, "h must be 32-bit integer")
+			fmt.Fprint(wr, "height must be 32-bit integer")
 			return
 		}
 
-		i, err := strconv.Atoi(r.FormValue("i"))
+		num_colors, err := strconv.Atoi(r.FormValue("colors"))
 		if err != nil {
-			fmt.Fprint(wr, "i must be 32-bit integer")
+			fmt.Fprint(wr, "colors must be 32-bit integer")
 			return
 		}
 
-		z, err := strconv.ParseFloat(r.FormValue("z"), 32)
+		zoom, err := strconv.ParseFloat(r.FormValue("zoom"), 32)
 		if err != nil {
-			fmt.Fprint(wr, "z must be float")
+			fmt.Fprint(wr, "zoom must be float")
 			return
 		}
 
-		seed, err := strconv.ParseInt(r.FormValue("seed"), 10, 64)
-		if err != nil {
-			fmt.Fprint(wr, "seed must be 64-bit integer")
-			return
+		r_seed := r.FormValue("seed")
+		var seed int64 = 0
+		if r_seed != "" {
+			seed, err = strconv.ParseInt(r_seed, 10, 64)
+			if err != nil {
+				fmt.Fprint(wr, "seed must be 64-bit integer")
+				return
+			}
 		}
 
 		wr.Header().Set("Content-Type", "image/png")
 
-		m := gomandelbrot.Mandelbrot(w, h, i, float32(z), seed)
+		m := gomandelbrot.Mandelbrot(width, height, num_colors, float32(zoom), seed)
 		png.Encode(wr, m)
 	})
 
-	log.Fatal(http.ListenAndServe("127.0.0.1:9017", nil))
+	bind := "127.0.0.1:9017"
+	log.Printf("Serving mandelbroten on %s ...", bind)
+	log.Fatal(http.ListenAndServe(bind, nil))
 }
